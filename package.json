@@ -11,9 +11,12 @@
     "update-data:local": "cross-env UPDATE_SOURCE=local node ./tools/update.js"
   },
   "dependencies": {
+    "@baiducloud/sdk": "^1.0.0-rc.20",
     "@johmun/vue-tags-input": "^2.1.0",
     "@yzfe/darkmodejs": "^1.2.1",
+    "body-parser": "^1.19.0",
     "core-js": "^3.6.5",
+    "express": "^4.17.1",
     "javascript-lp-solver": "^0.4.24",
     "js-base64": "^2.6.2",
     "lodash": "^4.17.15",
