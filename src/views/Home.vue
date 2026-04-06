@@ -71,7 +71,7 @@
           >
         </div>
       </div>
-      <AddToHomeScreen />
+      <AddToHomeScreen v-if="!hidePWAHelp" />
       <template v-if="$root.localeCN || $root.localeTW">
         <h2>主要功能</h2>
         <ul>
@@ -199,6 +199,7 @@ export default defineComponent({
       cacheStorageSize: this.$t('home.calculating'),
       indexDBSize: this.$t('home.calculating'),
       setting: this.$root.setting,
+      hidePWAHelp: process.env.VUE_APP_HIDE_PWA_HELP,
       ...contributors,
       creditsList: [
         {
