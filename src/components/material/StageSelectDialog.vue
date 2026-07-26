@@ -18,7 +18,7 @@
       </div>
     </div>
     <div class="mdui-dialog-content mdui-p-b-0">
-      <div class="zone-wrap" v-for="(codes, zoneId) in zone2CodesByServer" :key="zoneId">
+      <div class="zone-wrap" v-for="[zoneId, codes] in zone2CodesByServer" :key="zoneId">
         <div class="zone-header">
           <div class="zone-name mdui-valign">{{
             $t(`zone.${zoneToNameId[zoneId] || zoneId}`)
@@ -49,6 +49,7 @@
 import _ from 'lodash';
 import { defineComponent } from 'vue';
 import { mapState } from 'pinia';
+import { orderBy } from 'natural-orderby';
 import { MduiDialogMixin } from '@/mixins/mduiDialog';
 import { useDataStore } from '@/store/data';
 
@@ -108,16 +109,23 @@ export default defineComponent({
   methods: {
     open() {
       const blackList = new Set(this.parent().setting.planStageBlacklist);
-      this.select = _.fromPairs(
-        _.flatten(Object.values(this.zone2CodesByServer)).map(code => [code, !blackList.has(code)]),
-      );
+      this.select = _.fromPairs(this.codeListByServer.map(code => [code, !blackList.has(code)]));
       this.dialog.open();
     },
     zoneBatchSelect(zoneId, checked) {
-      this.zone2CodesByServer[zoneId].forEach(code => (this.select[code] = checked));
+      this.zone2CodesByServerMap[zoneId].forEach(code => (this.select[code] = checked));
     },
     batchSelect(checked) {
       this.select = _.mapValues(this.select, () => checked);
+    },
+    groupCodeTable(table) {
+      return _.mapValues(
+        _.groupBy(Object.keys(table), code => {
+          const { zoneId } = table[code];
+          return this.zoneToNameId[zoneId] || zoneId;
+        }),
+        sortStageCodes,
+      );
     },
   },
   computed: {
@@ -135,21 +143,25 @@ export default defineComponent({
         _.mapKeys(this.fullStageTable.retro[this.$root.server], ({ code }) => code),
         ({ zoneId }) => this.zoneToRetro[zoneId] in this.parent().retroInfo,
       );
-      const codeTableByServer = {
-        ...eventCodeTableByServer,
-        ...normalCodeTableByServer,
-        ...retroCodeTableByServer,
-      };
-      return _.mapValues(
-        _.groupBy(Object.keys(codeTableByServer), code => {
-          const { zoneId } = codeTableByServer[code];
-          return this.zoneToNameId[zoneId] || zoneId;
-        }),
-        sortStageCodes,
-      );
+      const list = [eventCodeTableByServer, normalCodeTableByServer, retroCodeTableByServer]
+        .map(this.groupCodeTable)
+        .flatMap((obj, i) =>
+          i === 1
+            ? orderBy(Object.entries(obj), ([zoneId]) =>
+                zoneId.includes('mainss') ? `main_${zoneId}` : zoneId,
+              )
+            : orderBy(Object.entries(obj), '0'),
+        );
+      return list;
+    },
+    zone2CodesByServerMap() {
+      return Object.fromEntries(this.zone2CodesByServer);
+    },
+    codeListByServer() {
+      return this.zone2CodesByServer.flatMap(([, codes]) => codes);
     },
     zoneCheckbox() {
-      return _.mapValues(this.zone2CodesByServer, codes => {
+      return _.mapValues(this.zone2CodesByServerMap, codes => {
         const selectedNum = _.sumBy(codes, code => (this.select[code] ? 1 : 0));
         return {
           checked: selectedNum === codes.length,
