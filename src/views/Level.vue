@@ -163,8 +163,8 @@
       </div>
       <!-- 输出 -->
       <div class="mdui-col-md-7 mdui-p-x-2 mdui-typo">
-        <h2 class="mdui-hidden-sm-down mdui-m-t-0">{{ $tt('level.lackResult') }}</h2>
-        <h2 class="mdui-hidden-md-up">{{ $tt('level.lackResult') }}</h2>
+        <h2 class="mdui-hidden-sm-down mdui-m-t-0">{{ $t('level.lackResult') }}</h2>
+        <h2 class="mdui-hidden-md-up">{{ $t('level.lackResult') }}</h2>
         <div class="num-item-list">
           <arkn-num-item
             t="4"
@@ -181,7 +181,7 @@
             :format="true"
           />
         </div>
-        <h2>{{ $tt('level.stageResult') }}</h2>
+        <h2>{{ $t('level.stageResult') }}</h2>
         <h3 class="mdui-m-t-0"
           >{{ useLS }} <small>× {{ result.ls }}</small></h3
         >
@@ -230,7 +230,7 @@
             :format="true"
           />
         </div>
-        <h2>{{ $tt('level.expectedUsage') }}</h2>
+        <h2>{{ $t('level.expectedUsage') }}</h2>
         <div class="num-item-list">
           <arkn-num-item
             t="4"
