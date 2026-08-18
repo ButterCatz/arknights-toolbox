@@ -1,4 +1,5 @@
 {
+  "vue.server.path": "node_modules/@vue/language-server",
   "i18n-ally.localesPaths": ["src/locales"],
   "i18n-ally.keystyle": "nested",
   "i18n-ally.displayLanguage": "cn",
