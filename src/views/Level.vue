@@ -149,6 +149,18 @@
               </td>
             </tr>
             <tr>
+              <td width="1"></td>
+              <td class="mdui-valign">
+                <arkn-num-item
+                  t="5"
+                  img="5001"
+                  :label="$t('common.exp')"
+                  :num="expHave"
+                  :format="true"
+                />
+              </td>
+            </tr>
+            <tr>
               <td colspan="2"
                 ><button
                   class="mdui-btn mdui-ripple mdui-btn-dense tag-btn"
@@ -409,9 +421,11 @@ export default defineComponent({
     useCEData() {
       return CEStages[this.useCE];
     },
+    expHave() {
+      return _.sum(_.map(this.inputs.have, (v, i) => v * ExpData[i]));
+    },
     result() {
       const { list, have, money } = this.inputs;
-      const expHave = _.sum(_.map(have, (v, i) => v * ExpData[i]));
 
       let expNeed = 0;
       let lmdNeed = 0;
@@ -451,7 +465,7 @@ export default defineComponent({
         }
       });
 
-      let lsNeed = ge0(Math.ceil((expNeed - expHave) / this.useLSData.exp));
+      let lsNeed = ge0(Math.ceil((expNeed - this.expHave) / this.useLSData.exp));
 
       // 实际消耗估算
       if (expStep.length > 0) {
@@ -490,7 +504,7 @@ export default defineComponent({
       return {
         exp: expNeed,
         lmd: lmdNeed,
-        expLack: ge0(expNeed - expHave),
+        expLack: ge0(expNeed - this.expHave),
         lmdLack: ge0(lmdNeed - money),
         ls: lsNeed,
         ce: ceNeed,
