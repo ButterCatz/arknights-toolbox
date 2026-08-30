@@ -825,7 +825,17 @@
     <!-- 艾丽妮专精计算器 -->
     <LazyDialog ref="ireneCalcDialog" :component="dialogs.IreneCalculatorDialog" />
     <!-- 森空岛设置 -->
-    <LazyDialog ref="sklandSettingDialog" :component="dialogs.SklandSettingDialog" />
+    <LazyDialog
+      ref="sklandSettingDialog"
+      :component="dialogs.SklandSettingDialog"
+      @open-qr-login="$refs.sklandQrLoginDialog.open()"
+    />
+    <!-- 森空岛扫码登录 -->
+    <LazyDialog
+      ref="sklandQrLoginDialog"
+      :component="dialogs.SklandQrLoginDialog"
+      @closed="$refs.sklandSettingDialog.open()"
+    />
   </div>
 </template>
 

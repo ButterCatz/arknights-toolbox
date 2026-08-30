@@ -5,6 +5,28 @@ import { v4 as uuid } from 'uuid';
 import { PROXY_SERVER } from './env';
 import { gmAvailable, gmJsonFetch } from './gmFetch';
 
+const HYPERGRYPH_AS_HOST = 'https://as.hypergryph.com';
+const SKLAND_ZONAI_HOST = 'https://zonai.skland.com';
+const SKLAND_APP_CODE = '4ca99fa6b56cc2ba';
+const HYPERGRYPH_USER_ORIGIN = 'https://user.hypergryph.com';
+
+const AS_WEB_HEADERS = {
+  Origin: HYPERGRYPH_USER_ORIGIN,
+  Referer: `${HYPERGRYPH_USER_ORIGIN}/`,
+};
+
+const AS_JSON_HEADERS = {
+  ...AS_WEB_HEADERS,
+  'Content-Type': 'application/json',
+};
+
+const SCAN_STATUS_MAP = {
+  0: 'confirmed',
+  100: 'pending',
+  101: 'scanned',
+  102: 'expired',
+};
+
 const apiDid = uuid().toUpperCase();
 
 function buf2hex(buffer) {
@@ -69,7 +91,7 @@ class SklandError extends Error {
 }
 
 export async function fetchSkland(path, cred, token, body) {
-  const res = await fetch(`https://zonai.skland.com${path}`, {
+  const res = await fetch(`${SKLAND_ZONAI_HOST}${path}`, {
     ...(body
       ? {
           body: JSON.stringify(body),
@@ -120,7 +142,7 @@ const sklandOAuthLoginByProxy = async token => {
 };
 
 const sklandOauthLoginByGm = async token => {
-  const oauthRes = await gmJsonFetch('https://as.hypergryph.com/user/oauth2/v2/grant', {
+  const oauthRes = await gmJsonFetch(`${HYPERGRYPH_AS_HOST}/user/oauth2/v2/grant`, {
     method: 'POST',
     headers: {
       'User-Agent':
@@ -129,7 +151,7 @@ const sklandOauthLoginByGm = async token => {
       Connection: 'close',
     },
     body: JSON.stringify({
-      appCode: '4ca99fa6b56cc2ba',
+      appCode: SKLAND_APP_CODE,
       type: 0,
       token,
     }),
@@ -139,7 +161,7 @@ const sklandOauthLoginByGm = async token => {
   }
 
   const credRes = await gmJsonFetch(
-    'https://zonai.skland.com/web/v1/user/auth/generate_cred_by_code',
+    `${SKLAND_ZONAI_HOST}/web/v1/user/auth/generate_cred_by_code`,
     {
       body: JSON.stringify({
         code: oauthRes.data.code,
@@ -168,6 +190,74 @@ const sklandOauthLoginByGm = async token => {
  */
 export function isNotLoginError(err) {
   return err.code === 10002;
+}
+
+/**
+ * @returns {Promise<{ scanId: string, scanUrl: string }>}
+ */
+export async function sklandCreateScan() {
+  const res = await gmJsonFetch(`${HYPERGRYPH_AS_HOST}/general/v1/gen_scan/login`, {
+    method: 'POST',
+    headers: AS_JSON_HEADERS,
+    body: JSON.stringify({ appCode: SKLAND_APP_CODE }),
+  });
+  if (res.status !== 0) {
+    throw new SklandError(res.msg, res.status);
+  }
+  const scanId = res.data?.scanId;
+  if (!scanId) {
+    throw new SklandError(res.msg || '获取二维码失败', res.status);
+  }
+  return {
+    scanId,
+    scanUrl: res.data.scanUrl || `hypergryph://scan_login?scanId=${encodeURIComponent(scanId)}`,
+  };
+}
+
+/**
+ * @param {string} scanId
+ * @returns {Promise<{ state: 'pending' | 'scanned' | 'expired' | 'confirmed', scanCode?: string }>}
+ */
+export async function sklandGetScanStatus(scanId) {
+  const res = await gmJsonFetch(
+    `${HYPERGRYPH_AS_HOST}/general/v1/scan_status?scanId=${encodeURIComponent(scanId)}`,
+    {
+      method: 'GET',
+      headers: AS_WEB_HEADERS,
+    },
+  );
+  const state = SCAN_STATUS_MAP[res.status];
+  if (!state) {
+    throw new SklandError(res.msg, res.status);
+  }
+  if (state !== 'confirmed') {
+    return { state };
+  }
+  const scanCode = res.data?.scanCode;
+  if (!scanCode) {
+    throw new SklandError(res.msg || '未返回扫码授权码', res.status);
+  }
+  return { state, scanCode };
+}
+
+/**
+ * @param {string} scanCode
+ * @returns {Promise<string>}
+ */
+export async function sklandTokenByScanCode(scanCode) {
+  const res = await gmJsonFetch(`${HYPERGRYPH_AS_HOST}/user/auth/v1/token_by_scan_code`, {
+    method: 'POST',
+    headers: AS_JSON_HEADERS,
+    body: JSON.stringify({ scanCode }),
+  });
+  if (res.status !== 0) {
+    throw new SklandError(res.msg, res.status);
+  }
+  const token = res.data?.token;
+  if (!token) {
+    throw new SklandError(res.msg || '获取 token 失败', res.status);
+  }
+  return token;
 }
 
 const loadSmSdk = once(() => {

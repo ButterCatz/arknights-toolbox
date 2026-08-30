@@ -20,6 +20,7 @@ import AccountManageDialog from '@/components/material/AccountManageDialog.vue';
 import PresetSettingDialog from '@/components/material/PresetSettingDialog.vue';
 import IreneCalculatorDialog from '@/components/material/IreneCalculatorDialog.vue';
 import SklandSettingDialog from '@/components/material/SklandSettingDialog.vue';
+import SklandQrLoginDialog from '@/components/material/SklandQrLoginDialog.vue';
 
 import Ajax from '@/utils/ajax';
 import * as clipboard from '@/utils/clipboard';
@@ -159,6 +160,7 @@ export default defineComponent({
         AccountManageDialog,
         IreneCalculatorDialog,
         SklandSettingDialog,
+        SklandQrLoginDialog,
       }),
     };
   },

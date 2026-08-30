@@ -48,7 +48,7 @@ const handleCharactersCultivateData = list => {
 export const useSklandStore = defineStore('skland', () => {
   const storageName = ref(STORAGE_NAME);
   const [storage, storageNameChanging] = useDynamicNamespacedLocalStorage(storageName, {
-    useOAuth: false,
+    useOAuth: true,
     oauthToken: '',
     cred: '',
     token: '',

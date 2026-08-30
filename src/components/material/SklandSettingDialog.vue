@@ -32,7 +32,20 @@
             </button>
           </div>
         </div>
-        <h5 class="mdui-m-t-1">Token 获取方法</h5>
+        <h5 class="mdui-m-y-1">Token 获取方法</h5>
+        <h6 class="mdui-m-y-1">扫码登录获取</h6>
+        <button
+          class="mdui-btn mdui-ripple mdui-btn-raised mdui-m-b-1"
+          v-theme-class="$root.color.pinkBtn"
+          :disabled="!store.gmAvailable"
+          @click="
+            dialog.tempClose();
+            emit('open-qr-login');
+          "
+          >使用森空岛手机 APP 扫码登录</button
+        >
+        <p v-if="!store.gmAvailable">需要先安装下方的扩展脚本</p>
+        <h6 class="mdui-m-y-1">手动获取</h6>
         <ol>
           <li
             >PC 浏览器进入无痕模式，打开<a href="https://www.skland.com/" target="_blank">森空岛</a
@@ -45,7 +58,7 @@
             >，复制 <code>content</code> 中的值，粘贴到上方</li
           >
         </ol>
-        <h5 class="mdui-m-t-1">推荐安装油猴脚本</h5>
+        <h5 class="mdui-m-y-1">推荐安装油猴脚本</h5>
         <div class="mdui-valign flex-wrap script-install-actions">
           <button
             class="mdui-btn mdui-ripple mdui-btn-raised"
@@ -140,7 +153,7 @@ const SK_CRED_CODE = "copy(localStorage.getItem('SK_OAUTH_CRED_KEY'))";
 const SK_TOKEN_TIP =
   'Cred 有效期较短，可能需要频繁更换 Cred，但仅需要在本机进行请求；Token 有效期超长，基本上一次设置终身无忧，但如果没有安装“Arkntools 扩展”脚本，则偶尔需要依靠本站提供的反代服务进行跨域请求。';
 
-const emit = defineEmits(MDUI_DIALOG_EMITS);
+const emit = defineEmits([...MDUI_DIALOG_EMITS, 'open-qr-login']);
 const dialogRef = ref();
 const dialog = useMduiDialog(emit, dialogRef);
 defineExpose(dialog);
