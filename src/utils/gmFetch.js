@@ -18,8 +18,9 @@ export const gmAvailable = () => lib.available();
  * @param {Pick<RequestInit, 'method' | 'headers' | 'body'>} options
  * @returns
  */
-export const gmJsonFetch = (url, { method, headers, body } = {}) => {
+export const gmJsonFetch = (url, options = {}) => {
   if (!lib.available()) throw new Error('ArknTools extension is not available');
+  const { method, headers, body } = options;
   return new Promise((resolve, reject) => {
     lib.request({
       url,
@@ -28,8 +29,15 @@ export const gmJsonFetch = (url, { method, headers, body } = {}) => {
       data: body,
       fetch: true,
       responseType: 'json',
-      onload: res => resolve(res.response),
-      onerror: res => reject(res.error),
+      onload: res => {
+        // eslint-disable-next-line no-console
+        console.log('[GMFetch]', url, options, res);
+        resolve(res.response);
+      },
+      onerror: res => {
+        console.error('[GMFetch]', url, options, res);
+        reject(res.error);
+      },
     });
   });
 };

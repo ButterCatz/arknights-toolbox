@@ -4,7 +4,12 @@ import { ref, computed, watch, shallowRef } from 'vue';
 import NamespacedLocalStorage, {
   useDynamicNamespacedLocalStorage,
 } from '@/utils/NamespacedLocalStorage';
-import { fetchSkland, isNotLoginError, sklandOAuthLogin } from '@/utils/skland';
+import {
+  fetchSkland,
+  isCredTokenExpiredError,
+  isNotLoginError,
+  sklandOAuthLogin,
+} from '@/utils/skland';
 import { PROXY_SERVER } from '@/utils/env';
 import { DEFAULT_ID as MULTI_ACCOUNT_DEFAULT_ID } from '@/utils/MultiAccount';
 import { useGmAvailable } from '@/utils/gmFetch';
@@ -53,7 +58,6 @@ export const useSklandStore = defineStore('skland', () => {
     cred: '',
     token: '',
     uid: '',
-    lastTokenRefresh: 0,
   });
   const { useOAuth, oauthToken, cred, token, uid } = storage;
 
@@ -98,19 +102,46 @@ export const useSklandStore = defineStore('skland', () => {
     const { cred, token } = await sklandOAuthLogin(oauthToken.value);
     storage.cred.value = cred;
     storage.token.value = token;
-    storage.lastTokenRefresh.value = Date.now();
   };
 
   const refreshToken = async () => {
-    const now = Date.now();
-    if (
-      token.value &&
-      now - storage.lastTokenRefresh.value < 1800e3 // 先随便假设个过期时间
-    ) {
-      return;
-    }
     token.value = (await fetchSkland('/api/v1/auth/refresh', cred.value)).token;
-    storage.lastTokenRefresh.value = now;
+  };
+
+  const recoverAuth = async e => {
+    if (isCredTokenExpiredError(e)) {
+      try {
+        await refreshToken();
+        return true;
+      } catch (refreshErr) {
+        if (isNotLoginError(refreshErr) && canUseOAuth.value) {
+          await refreshCredAndToken();
+          return true;
+        }
+        throw refreshErr;
+      }
+    }
+    if (isNotLoginError(e) && canUseOAuth.value) {
+      await refreshCredAndToken();
+      return true;
+    }
+    return false;
+  };
+
+  const fetchSklandAuthenticated = async path => {
+    if (!token.value) {
+      try {
+        await refreshToken();
+      } catch (e) {
+        if (!(await recoverAuth(e))) throw e;
+      }
+    }
+    try {
+      return await fetchSkland(path, cred.value, token.value);
+    } catch (e) {
+      if (!(await recoverAuth(e))) throw e;
+      return await fetchSkland(path, cred.value, token.value);
+    }
   };
 
   const fetchSklandCultivate = async () => {
@@ -120,31 +151,15 @@ export const useSklandStore = defineStore('skland', () => {
       } else return;
     }
     cultivateLastFetch = Date.now();
-    await refreshToken();
     await fetchSklandBinding();
-    const doFetch = () =>
-      fetchSkland(`/api/v1/game/cultivate/player?uid=${uid.value}`, cred.value, token.value);
-    const data = await doFetch().catch(async e => {
-      if (isNotLoginError(e) && canUseOAuth.value) {
-        await refreshCredAndToken();
-        return await doFetch();
-      }
-      throw e;
-    });
+    const data = await fetchSklandAuthenticated(`/api/v1/game/cultivate/player?uid=${uid.value}`);
     cultivateCharacters.value = handleCharactersCultivateData(data.characters);
     return data.items;
   };
 
   const fetchSklandBinding = async () => {
     if (uid.value) return;
-    const doFetch = () => fetchSkland('/api/v1/game/player/binding', cred.value, token.value);
-    const data = await doFetch().catch(async e => {
-      if (isNotLoginError(e) && canUseOAuth.value) {
-        await refreshCredAndToken();
-        return await doFetch();
-      }
-      throw e;
-    });
+    const data = await fetchSklandAuthenticated('/api/v1/game/player/binding');
     const app = data.list.find(({ appCode }) => appCode === 'arknights');
     if (!app) throw new Error('Arknights app not found.');
     const newUid = app.defaultUid || app.bindingList[0]?.uid;

@@ -160,30 +160,34 @@ const sklandOauthLoginByGm = async token => {
     throw new SklandError(oauthRes.msg, oauthRes.status);
   }
 
-  const credRes = await gmJsonFetch(
-    `${SKLAND_ZONAI_HOST}/web/v1/user/auth/generate_cred_by_code`,
-    {
-      body: JSON.stringify({
-        code: oauthRes.data.code,
-        kind: 1,
-      }),
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        referer: 'https://www.skland.com/',
-        origin: 'https://www.skland.com',
-        dId: await getDeviceId(),
-        platform: '3',
-        timestamp: `${Math.floor(Date.now() / 1000)}`,
-        vName: '1.0.0',
-      },
+  const credRes = await gmJsonFetch(`${SKLAND_ZONAI_HOST}/web/v1/user/auth/generate_cred_by_code`, {
+    body: JSON.stringify({
+      code: oauthRes.data.code,
+      kind: 1,
+    }),
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      referer: 'https://www.skland.com/',
+      origin: 'https://www.skland.com',
+      dId: await getDeviceId(),
+      platform: '3',
+      timestamp: `${Math.floor(Date.now() / 1000)}`,
+      vName: '1.0.0',
     },
-  );
+  });
   if (credRes.code !== 0) {
     throw new SklandError(credRes.message, credRes.code);
   }
   return credRes.data;
 };
+
+/**
+ * @param {SklandError} err
+ */
+export function isCredTokenExpiredError(err) {
+  return err.code === 10000;
+}
 
 /**
  * @param {SklandError} err
