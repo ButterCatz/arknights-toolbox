@@ -23,6 +23,7 @@
                 v-model="item.server"
                 :options="SERVER_OPTIONS"
                 :mdui-options="null"
+                disable-js
                 @change="server => $emit('changeServer', { id: item.id, server })"
               />
             </td>
