@@ -1,8 +1,8 @@
 // https://github.com/oott123/sklanding/blob/master/src/utils/sign.ts
 import md5 from 'js-md5';
 import { once } from 'lodash';
-import { v4 as uuid } from 'uuid';
 import { PROXY_SERVER } from './env';
+import { uuid } from './uuid';
 import { gmAvailable, gmJsonFetch } from './gmFetch';
 
 const HYPERGRYPH_AS_HOST = 'https://as.hypergryph.com';

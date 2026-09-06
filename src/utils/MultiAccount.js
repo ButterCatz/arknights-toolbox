@@ -1,8 +1,8 @@
 import { reactive, watch } from 'vue';
-import { v4 as uuid } from 'uuid';
 import EventEmitter from 'eventemitter3';
 import i18n from '@/i18n';
 import NamespacedLocalStorage from './NamespacedLocalStorage';
+import { uuid } from './uuid';
 
 export const DEFAULT_ID = 'default';
 

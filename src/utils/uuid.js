@@ -1,2 +1,6 @@
 import { v4 } from 'uuid';
-export default () => v4().replace(/-/g, '');
+
+export const uuid =
+  typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID.bind(crypto)
+    : v4;

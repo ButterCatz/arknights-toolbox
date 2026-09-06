@@ -46,8 +46,8 @@
 
 <script>
 import { defineComponent } from 'vue';
-import { v4 as uuid } from 'uuid';
 import { MduiDialogMixin } from '@/mixins/mduiDialog';
+import { uuid } from '@/utils/uuid';
 import PlanSetting from './PlanSetting.vue';
 
 export default defineComponent({
