@@ -807,6 +807,7 @@ export default defineComponent({
       delete result.feasible;
       delete result.result;
       delete result.bounded;
+      delete result.isIntegral;
       delete result.have;
 
       const deltaGet = {};
@@ -1805,6 +1806,7 @@ export default defineComponent({
       delete result.feasible;
       delete result.result;
       delete result.bounded;
+      delete result.isIntegral;
 
       return {
         stages: Object.keys(result).filter(k => !k.startsWith('synt-')),

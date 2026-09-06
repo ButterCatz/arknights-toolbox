@@ -95,7 +95,23 @@ const config = {
         },
       },
     },
-    resolve: { alias: {} },
+    resolve: {
+      alias: {
+        // 1.x 的 main/module 会拉 fs/child_process；webpack 4 锁到 browser bundle
+        'javascript-lp-solver': resolve(
+          __dirname,
+          'node_modules/javascript-lp-solver/dist/index.browser.mjs',
+        ),
+      },
+    },
+    module: {
+      rules: [
+        {
+          test: /[\\/]javascript-lp-solver[\\/]/,
+          parser: { amd: false },
+        },
+      ],
+    },
   },
   chainWebpack: config => {
     config.plugins.delete('preload').delete('prefetch');
