@@ -31,9 +31,10 @@
   - 快捷跳转至 Wiki
 - **精英材料计算**
   - 支持搜索干员，选择精英化、技能、模组，快速添加所需材料，快捷跳转至 Wiki
-  - 支持从森空岛导入仓库材料数量 <sup>**NEW**</sup>
+  - 支持从森空岛导入仓库材料数量
   - 支持仓库截图识别
   - 支持刷图规划，由企鹅物流提供掉落数据
+  - 支持登录一图流帐号进行云同步 <sup>**NEW**</sup>
 - **干员升级计算**
   - 计算将干员升级至指定等级所需狗粮和龙门币，以及需要打多少次资源本
   - 支持多个需求合并计算
@@ -48,7 +49,7 @@
 - ~~[yuanyan3060/Arknights-Bot-Resource](https://github.com/yuanyan3060/Arknights-Bot-Resource)（数据、图片）~~
 - [MooncellWiki/OpenArknightsFBS](https://github.com/MooncellWiki/OpenArknightsFBS)（数据FBS）
 - [企鹅物流数据统计](https://penguin-stats.io/)（掉落数据）
-- [明日方舟一图流](https://ark.yituliu.cn/)（材料价值数据）
+- [明日方舟一图流](https://ark.yituliu.cn/)（材料价值数据、云同步）
 - [材料获取最优策略](https://bbs.nga.cn/read.php?tid=17507710)（思路）
 - [OCR Space](https://ocr.space/)（OCR）
 - Wiki

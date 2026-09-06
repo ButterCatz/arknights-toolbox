@@ -43,6 +43,13 @@
     "sync": {
       "cloudSync": "雲端資料同步",
       "cloudBackup": "雲端備份恢復",
+      "syncService": "同步服務",
+      "service": {
+        "arkntools": "本站",
+        "yituliu": "一圖流"
+      },
+      "loginWithYituliu": "使用一圖流帳號登入",
+      "logout": "登出",
       "syncCode": "同步碼",
       "saveDataTitle": "導出備份",
       "saveDataLabel": "請儲存文字方塊中的所有內容",
@@ -81,6 +88,10 @@
     "restoreSucceeded": "恢復成功",
     "restoreFailed": "恢復失敗",
     "syncCodeInvalid": "同步碼已失效，請刪除後重新生成",
+    "yituliuOauthStateInvalid": "一圖流登入校驗失敗",
+    "yituliuOauthFailed": "一圖流登入失敗：{error}",
+    "yituliuLoginExpired": "一圖流登入已過期，請重新登入",
+    "yituliuNotBackedUp": "尚未備份",
     "penguinDataLoading": "正在從企鵝物流更新資料",
     "penguinDataFallback": "資料更新失敗，使用舊資料進行計算",
     "penguinDataFailed": "資料載入失敗，請檢查網路連接"

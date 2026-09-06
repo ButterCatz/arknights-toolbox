@@ -45,6 +45,13 @@
     "sync": {
       "cloudSync": "云端数据同步",
       "cloudBackup": "云端备份恢复",
+      "syncService": "同步服务",
+      "service": {
+        "arkntools": "本站",
+        "yituliu": "一图流"
+      },
+      "loginWithYituliu": "使用一图流帐号登录",
+      "logout": "登出",
       "syncCode": "同步码",
       "apiKey": "API Key",
       "saveDataTitle": "导出备份",
@@ -84,6 +91,10 @@
     "restoreSucceeded": "恢复成功",
     "restoreFailed": "恢复失败",
     "syncCodeInvalid": "同步码已失效，请删除后重新生成",
+    "yituliuOauthStateInvalid": "一图流登录校验失败",
+    "yituliuOauthFailed": "一图流登录失败：{error}",
+    "yituliuLoginExpired": "一图流登录已过期，请重新登录",
+    "yituliuNotBackedUp": "尚未备份",
     "penguinDataLoading": "正在从企鹅物流更新数据",
     "penguinDataFallback": "数据更新失败，使用旧数据进行计算",
     "penguinDataFailed": "数据加载失败，请检查网络连接"

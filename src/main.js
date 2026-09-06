@@ -93,6 +93,7 @@ new Vue({
     releasedChar: new Set(),
     releasedMaterial: new Set(),
     releasedUniequip: new Set(),
+    yituliuOauthData: null,
   },
   watch: {
     setting: {
@@ -363,11 +364,22 @@ new Vue({
 
     (obj => obj && (this.setting = pickClone(this.setting, obj)))(nls.getItem('setting'));
 
-    const lastPage = window.localStorage?.getItem('lastPage');
-    const initPath = location.hash.substr(1) || '/';
-    if (this.setting.rememberLastPage && lastPage && initPath === '/' && lastPage !== '/') {
-      router.replace(lastPage);
-    } else if (initPath !== '/') window.localStorage?.setItem('lastPage', initPath);
+    const searchParams = new URLSearchParams(location.search);
+    const oauthState = searchParams.get('state');
+    const hasOauthCallback = oauthState && (searchParams.get('code') || searchParams.get('error'));
+    if (hasOauthCallback) {
+      this.yituliuOauthData = Object.fromEntries(searchParams);
+      const cleaned = new URL(location.href);
+      cleaned.search = '';
+      history.replaceState(null, '', `${cleaned.pathname}${cleaned.hash}`);
+      router.replace('/material');
+    } else {
+      const lastPage = window.localStorage?.getItem('lastPage');
+      const initPath = location.hash.substr(1) || '/';
+      if (this.setting.rememberLastPage && lastPage && initPath === '/' && lastPage !== '/') {
+        router.replace(lastPage);
+      } else if (initPath !== '/') window.localStorage?.setItem('lastPage', initPath);
+    }
 
     const lang = nls.getItem('lang');
     if (lang) {

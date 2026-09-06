@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { defineComponent, computed, markRaw } from 'vue';
 import { mapState, mapActions } from 'pinia';
+import { useLocalStorage } from '@vueuse/core';
 import { Base64 } from 'js-base64';
 import Linprog from 'javascript-lp-solver';
 import { Drag, DropList } from 'vue-easy-dnd';
@@ -28,12 +29,14 @@ import pickClone from '@/utils/pickClone';
 import { MATERIAL_TAG_BTN_COLOR } from '@/utils/constant';
 import MultiAccount from '@/utils/MultiAccount';
 import NamespacedLocalStorage from '@/utils/NamespacedLocalStorage';
-import { JSON_STORAGE_SERVER } from '@/utils/env';
+import { JSON_STORAGE_SERVER, YITULIU_CLIENT_ID } from '@/utils/env';
 import { useDataStore, MaterialTypeEnum, PURCHASE_CERTIFICATE_ID } from '@/store/data';
 import { usePenguinDataStore } from '@/store/penguinData';
 import { useMaterialValueStore } from '@/store/materialValue';
 import { useSklandStore } from '@/store/skland';
 import { useSuppliesStagesOpenStore } from '@/store/suppliesStagesOpen';
+import { toConfigName, useYituliuStore } from '@/store/yituliu';
+import { removePkceStorage, validateState } from '@/utils/yituliu/oauth';
 
 const multiAccount = new MultiAccount('material');
 
@@ -143,10 +146,26 @@ export default defineComponent({
     const curAccount = computed(() => multiAccount.currentAccount);
     const curAccountName = computed(() => curAccount.value?.name);
     const accountList = computed(() => multiAccount.data.list);
+    const globalSetting = useLocalStorage(
+      'material.globalSetting',
+      {
+        syncService: 'arkntools',
+      },
+      { writeDefaults: false },
+    );
+    const hasArkntoolsSync = !!JSON_STORAGE_SERVER;
+    const hasYituliuSync = !!YITULIU_CLIENT_ID;
+    if (hasArkntoolsSync !== hasYituliuSync) {
+      const only = hasArkntoolsSync ? 'arkntools' : 'yituliu';
+      if (globalSetting.value.syncService !== only) {
+        globalSetting.value.syncService = only;
+      }
+    }
     return {
       curAccount,
       curAccountName,
       accountList,
+      globalSetting,
       switchAccount: multiAccount.switchAccount.bind(multiAccount),
       dialogs: markRaw({
         PlannerDialog,
@@ -207,7 +226,7 @@ export default defineComponent({
       throttleAutoSyncUpload: () => {},
       ignoreNextInputsChange: false,
       highlightCost: {},
-      jsonStorageAvailable: !!JSON_STORAGE_SERVER,
+      jsonStorageAvailable: !!(JSON_STORAGE_SERVER || YITULIU_CLIENT_ID),
       suppliesStagesCurTimeUpdateTimer: null,
       forceHideMduiTooltip: markRaw(
         _.throttle(() => this.$$('.mdui-tooltip-open').removeClass('mdui-tooltip-open'), 100, {
@@ -243,8 +262,12 @@ export default defineComponent({
           }
         }
         multiAccount.storage.setItem('inputs', val);
-        if (this.setting.autoSyncUpload && this.syncCode && !this.ignoreNextInputsChange) {
-          this.throttleAutoSyncUpload();
+        if (this.setting.autoSyncUpload && !this.ignoreNextInputsChange) {
+          if (this.globalSetting.syncService === 'yituliu') {
+            if (this.yituliuLoggedIn) this.throttleAutoSyncUpload();
+          } else if (this.syncCode) {
+            this.throttleAutoSyncUpload();
+          }
         }
         if (this.ignoreNextInputsChange) this.ignoreNextInputsChange = false;
       },
@@ -301,6 +324,9 @@ export default defineComponent({
     ...mapState(useSklandStore, {
       sklandReady: 'ready',
       sklandCultivateCharacters: 'cultivateCharacters',
+    }),
+    ...mapState(useYituliuStore, {
+      yituliuLoggedIn: 'isLoggedIn',
     }),
     hasFocusPreset() {
       return this.selected.presets.some(p => p.setting.focus);
@@ -1022,6 +1048,31 @@ export default defineComponent({
       'setSuppliesStagesCurTime',
       'isItemSuppliesStageOpen',
     ]),
+    ...mapActions(useYituliuStore, {
+      exchangeYituliuToken: 'exchangeToken',
+      yituliuSaveCloudSync: 'saveCloudSync',
+      yituliuRestoreCloudSync: 'restoreCloudSync',
+    }),
+    async handleYituliuOauthCallback() {
+      const data = this.$root.yituliuOauthData;
+      if (!data) return;
+      try {
+        if (!validateState(data.state)) {
+          removePkceStorage();
+          this.$snackbar(this.$t('cultivate.snackbar.yituliuOauthStateInvalid'));
+        } else if (data.error) {
+          removePkceStorage();
+          this.$snackbar(this.$t('cultivate.snackbar.yituliuOauthFailed', { error: data.error }));
+        } else if (data.code) {
+          await this.exchangeYituliuToken({ code: data.code, state: data.state });
+        }
+      } catch (e) {
+        this.$snackbar(String(e));
+      } finally {
+        this.$root.yituliuOauthData = null;
+        this.$refs.dataSyncDialog.open();
+      }
+    },
     togglePresetFocus(preset) {
       preset.setting.focus = !preset.setting.focus;
       this.usePreset();
@@ -1432,7 +1483,25 @@ export default defineComponent({
         },
       );
     },
-    cloudSaveData(silence = false) {
+    async cloudSaveData(silence = false) {
+      if (YITULIU_CLIENT_ID && this.globalSetting.syncService === 'yituliu') {
+        this.dataSyncing = true;
+        try {
+          await this.yituliuSaveCloudSync(toConfigName(multiAccount.data.id), this.dataForSave);
+          if (!silence) this.$snackbar(this.$t('cultivate.snackbar.backupSucceeded'));
+        } catch {
+          // withYituliuSnack already notified
+        } finally {
+          this.dataSyncing = false;
+        }
+        if (!silence) {
+          this.$gtag.event('material_cloud_backup', {
+            event_category: 'material',
+            event_label: 'yituliu',
+          });
+        }
+        return;
+      }
       if (!JSON_STORAGE_SERVER) return;
       const data = this.dataForSave;
       this.dataSyncing = true;
@@ -1471,7 +1540,29 @@ export default defineComponent({
         });
       }
     },
-    cloudRestoreData() {
+    async cloudRestoreData() {
+      if (YITULIU_CLIENT_ID && this.globalSetting.syncService === 'yituliu') {
+        this.dataSyncing = true;
+        try {
+          const item = await this.yituliuRestoreCloudSync(toConfigName(multiAccount.data.id));
+          if (!item) {
+            this.$snackbar(this.$t('cultivate.snackbar.yituliuNotBackedUp'));
+            return;
+          }
+          this.ignoreNextInputsChange = true;
+          this.dataForSave = item.config;
+          this.$snackbar(this.$t('cultivate.snackbar.restoreSucceeded'));
+        } catch {
+          // withYituliuSnack already notified
+        } finally {
+          this.dataSyncing = false;
+        }
+        this.$gtag.event('material_cloud_restore', {
+          event_category: 'material',
+          event_label: 'yituliu',
+        });
+        return;
+      }
       if (!this.syncCode || !JSON_STORAGE_SERVER) return;
       this.dataSyncing = true;
       Ajax.getJson(this.syncCode)
@@ -1612,9 +1703,10 @@ export default defineComponent({
       ]) {
         if (quantity === 0) continue;
         const stageId = origStageId.replace(/_rep$/, '');
-        if (
-          !(stageId in this.stageTable && (itemId in this.materialConstraints || itemId in cardExp))
-        ) {
+        if (!(
+          stageId in this.stageTable &&
+          (itemId in this.materialConstraints || itemId in cardExp)
+        )) {
           continue;
         }
         const { zoneId, code, cost, event = false, retro = false } = this.stageTable[stageId];
@@ -1995,6 +2087,7 @@ export default defineComponent({
     multiAccount.emitter.on('delete', this.handleMultiAccountIdDelete);
     this.handleMultiAccountIdChange(multiAccount.data.id);
     this.suppliesStagesCurTimeUpdateTimer = setInterval(this.updateSuppliesStagesCurTime, 60e3);
+    this.handleYituliuOauthCallback();
   },
   activated() {
     this.updateSuppliesStagesCurTime();

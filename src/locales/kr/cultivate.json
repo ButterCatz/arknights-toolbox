@@ -44,6 +44,13 @@
     "sync": {
       "cloudSync": "클라우드 동기화",
       "cloudBackup": "클라우드 백업",
+      "syncService": "동기화 서비스",
+      "service": {
+        "arkntools": "이 사이트",
+        "yituliu": "Yituliu"
+      },
+      "loginWithYituliu": "Yituliu 계정으로 로그인",
+      "logout": "로그아웃",
       "syncCode": "동기화 코드",
       "apiKey": "API 키",
       "saveDataTitle": "백업",
@@ -83,6 +90,10 @@
     "restoreSucceeded": "복원 성공.",
     "restoreFailed": "복원 실패.",
     "syncCodeInvalid": "동기화 코드가 유효하지 않습니다. 삭제 후 다시 생성해주세요.",
+    "yituliuOauthStateInvalid": "Yituliu 로그인 검증에 실패했습니다",
+    "yituliuOauthFailed": "Yituliu 로그인 실패: {error}",
+    "yituliuLoginExpired": "Yituliu 로그인이 만료되었습니다. 다시 로그인해 주세요",
+    "yituliuNotBackedUp": "아직 백업되지 않았습니다",
     "penguinDataLoading": "penguin-stats에서 데이터 업데이트 중...",
     "penguinDataFallback": "업데이트 실패, 이전 데이터 사용 중.",
     "penguinDataFailed": "업데이트 실패, 연결을 확인해주세요."

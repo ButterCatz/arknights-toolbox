@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { defineComponent, markRaw, onBeforeUnmount, onMounted } from 'vue';
+import { defineComponent, markRaw, nextTick, onBeforeUnmount, onMounted } from 'vue';
 import { JQ as $, Dialog } from 'mdui';
 
 const EVENT_NAMES = Object.freeze(
@@ -99,6 +99,11 @@ export const useMduiDialog = (emit, dialogRef, options) => {
       const result = isTempClose;
       isTempClose = false;
       return result;
+    },
+    handleUpdateNextTick: () => {
+      nextTick(() => {
+        methods.handleUpdate();
+      });
     },
   };
 };

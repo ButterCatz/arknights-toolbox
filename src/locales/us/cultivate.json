@@ -44,6 +44,13 @@
     "sync": {
       "cloudSync": "Cloud Sync",
       "cloudBackup": "Cloud Backup",
+      "syncService": "Sync Service",
+      "service": {
+        "arkntools": "This Site",
+        "yituliu": "Yituliu"
+      },
+      "loginWithYituliu": "Sign in with Yituliu",
+      "logout": "Sign Out",
       "syncCode": "Sync Code",
       "apiKey": "API Key",
       "saveDataTitle": "Backup",
@@ -83,6 +90,10 @@
     "restoreSucceeded": "Restore succeeded.",
     "restoreFailed": "Restore failed.",
     "syncCodeInvalid": "Sync code is invalid, please delete it and regenerate one.",
+    "yituliuOauthStateInvalid": "Yituliu login verification failed",
+    "yituliuOauthFailed": "Yituliu login failed: {error}",
+    "yituliuLoginExpired": "Yituliu login has expired, please sign in again",
+    "yituliuNotBackedUp": "No backup yet",
     "penguinDataLoading": "Updating data from penguin-stats...",
     "penguinDataFallback": "Update failed, using old data.",
     "penguinDataFailed": "Update failed, please check your connection."

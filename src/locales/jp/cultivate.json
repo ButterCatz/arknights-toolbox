@@ -44,6 +44,13 @@
     "sync": {
       "cloudSync": "クラウド同期",
       "cloudBackup": "クラウド",
+      "syncService": "同期サービス",
+      "service": {
+        "arkntools": "本サイト",
+        "yituliu": "Yituliu"
+      },
+      "loginWithYituliu": "Yituliuアカウントでログイン",
+      "logout": "ログアウト",
       "syncCode": "同期コード",
       "saveDataTitle": "エクスポート",
       "saveDataLabel": "テキストエリアの内容を保存してください",
@@ -82,6 +89,10 @@
     "restoreSucceeded": "リストア成功",
     "restoreFailed": "リストア失敗",
     "syncCodeInvalid": "無効な同期コードです、削除して再生成してください",
+    "yituliuOauthStateInvalid": "Yituliuログインの検証に失敗しました",
+    "yituliuOauthFailed": "Yituliuログインに失敗しました：{error}",
+    "yituliuLoginExpired": "Yituliuログインの有効期限が切れました。再度ログインしてください",
+    "yituliuNotBackedUp": "まだバックアップがありません",
     "penguinDataLoading": "ペンギン急便からデータを更新しています",
     "penguinDataFallback": "データ更新失敗，古いデータで計算を行います",
     "penguinDataFailed": "データ更新失敗，インターネット接続をチェックしてください"

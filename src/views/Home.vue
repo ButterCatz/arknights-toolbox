@@ -86,12 +86,13 @@
             <b>精英材料计算</b>
             <ul>
               <li>支持搜索干员，选择精英化、技能、模组，快速添加所需材料，快捷跳转至 Wiki</li>
-              <li
-                >支持从森空岛导入仓库材料数量
-                <sup class="mdui-text-color-pink-accent"><b>NEW</b></sup></li
-              >
+              <li>支持从森空岛导入仓库材料数量</li>
               <li>支持仓库截图识别</li>
               <li>支持刷图规划，由企鹅物流提供掉落数据</li>
+              <li
+                >支持登录一图流帐号进行云同步
+                <sup class="mdui-text-color-pink-accent"><b>NEW</b></sup></li
+              >
             </ul>
           </li>
           <li>
@@ -231,7 +232,7 @@ export default defineComponent({
         },
         {
           name: '明日方舟一图流',
-          type: '材料价值数据',
+          type: '材料价值数据、云同步',
           url: 'https://ark.yituliu.cn/',
         },
         {
