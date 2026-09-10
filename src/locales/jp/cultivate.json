@@ -35,7 +35,7 @@
       "cloudSync": "クラウド同期",
       "importFromJSON": "JSON (MAA)",
       "importFromSkland": "Skland (実験的)",
-      "exportToArkLights": "ArkLights",
+      "exportToArkLights": "ArkLights / MAA",
       "forceUpdate": "ドロップデータを強制更新する",
       "forceUpdateNeedFromPreset": "@:(common.preset)から必要数を強制更新する",
       "clearHighlight": "ハイライトをクリア",

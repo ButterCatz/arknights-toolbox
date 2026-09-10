@@ -35,7 +35,7 @@
       "cloudSync": "Cloud Sync",
       "importFromJSON": "From JSON (MAA)",
       "importFromSkland": "From Skland (experimental)",
-      "exportToArkLights": "To ArkLights",
+      "exportToArkLights": "To ArkLights / MAA",
       "forceUpdate": "Force Update Data",
       "forceUpdateNeedFromPreset": "Force Update \"Need\" from Preset",
       "clearHighlight": "Clear Highlight",

@@ -36,7 +36,7 @@
       "cloudSync": "云端数据同步",
       "importFromJSON": "从 JSON 导入 (MAA)",
       "importFromSkland": "从森空岛导入 (实验性)",
-      "exportToArkLights": "导出至明日方舟速通",
+      "exportToArkLights": "导出至明日方舟速通 / MAA",
       "forceUpdate": "强制更新掉落数据",
       "forceUpdateNeedFromPreset": "强制从预设更新需求",
       "clearHighlight": "清除高亮",
