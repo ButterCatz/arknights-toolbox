@@ -2049,6 +2049,39 @@ export default defineComponent({
         this.$snackbar(this.$t('common.copied'));
       }
     },
+    async exportToMAA() {
+      const roles = [
+        'Warrior',
+        'Sniper',
+        'Tank',
+        'Medic',
+        'Support',
+        'Caster',
+        'Special',
+        'Pioneer',
+      ];
+      const data = this.selected.presets.flatMap(({ name, setting: { evolve, skills } }) => {
+        if (name === '002_amiya') return [];
+        const elite = evolve.findLastIndex(v => v) + 1;
+        const hasMastery = skills.elite.some(([enable]) => enable);
+        if (!elite && !skills.normal[0] && !hasMastery) return [];
+        const item = {
+          role: roles[this.characterTable[name].profession - 1],
+          name: this.$root.cnServerMessages.character[name],
+        };
+        if (elite) item.elite = elite;
+        if (skills.normal[0]) item.skill_level = skills.normal[2];
+        if (hasMastery) {
+          item.skill_mastery = skills.elite.map(([enable, , maxLevel]) =>
+            enable ? maxLevel - 7 : 0,
+          );
+        }
+        return [item];
+      });
+      if (await clipboard.setText(JSON.stringify(data))) {
+        this.$snackbar(this.$t('common.copied'));
+      }
+    },
     async updateSklandCultivateIfSupport() {
       if (!this.$root.supportSkland) return;
       await this.updateSklandCultivateIfExpired();

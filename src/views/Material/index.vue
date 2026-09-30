@@ -286,6 +286,11 @@
                       >{{ $t('cultivate.panel.button.exportToArkLights') }}</a
                     >
                   </li>
+                  <li class="mdui-menu-item mdui-ripple">
+                    <a class="mdui-ripple pointer" @click="exportToMAA">{{
+                      $t('cultivate.panel.button.exportToMAA')
+                    }}</a>
+                  </li>
                 </ul>
                 <button
                   class="mdui-btn mdui-ripple mdui-btn-dense tag-btn"
