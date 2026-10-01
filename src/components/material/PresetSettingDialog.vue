@@ -63,7 +63,6 @@
             class="skill-elite cb-with-num-select"
             v-for="(skill, i) in sp.skills.elite"
             :key="`se-${skill.name}`"
-            v-show="parent().isSkillReleased(skill)"
           >
             <div class="flex flex-grow mw-100p">
               <mdui-checkbox

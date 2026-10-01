@@ -1869,9 +1869,6 @@ export default defineComponent({
         }
       }
     },
-    isSkillReleased({ isPatch, unlockStages }) {
-      return !isPatch || unlockStages.every(stage => !this.unopenedStages.includes(stage));
-    },
     // 获取相关材料（合成树内所有材料）
     getRelatedMaterials(mid, obj = {}) {
       obj[mid] = true;
@@ -2019,7 +2016,7 @@ export default defineComponent({
         ({ name, setting: { evolve, skills, uniequip } }) => {
           const list = [];
           // 不支持阿米娅
-          if (name === '002_amiya') return list;
+          if (/_amiya\d*$/.test(name)) return list;
           name = this.$root.cnServerMessages.character[name];
           // 精英化
           const maxEvolve = evolve.findLastIndex(v => v) + 1;
@@ -2061,13 +2058,12 @@ export default defineComponent({
         'Pioneer',
       ];
       const data = this.selected.presets.flatMap(({ name, setting: { evolve, skills } }) => {
-        if (name === '002_amiya') return [];
         const elite = evolve.findLastIndex(v => v) + 1;
         const hasMastery = skills.elite.some(([enable]) => enable);
         if (!elite && !skills.normal[0] && !hasMastery) return [];
         const item = {
           role: roles[this.characterTable[name].profession - 1],
-          name: this.$root.cnServerMessages.character[name],
+          name: this.$root.cnServerMessages.character[/_amiya\d*$/.test(name) ? '002_amiya' : name],
         };
         if (elite) item.elite = elite;
         if (skills.normal[0]) item.skill_level = skills.normal[2];

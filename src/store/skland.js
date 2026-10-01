@@ -21,10 +21,8 @@ const cnNumTextMap = ['零', '一', '二'];
 const idStandardization = id => id.replace(/\[([0-9]+?)\]/g, '_$1');
 
 const handleCharactersCultivateData = list => {
-  let amiya;
-  const otherAmiya = [];
   const mapHandleKeys = ['skills', 'equips'];
-  const newList = list.filter(char => {
+  list.forEach(char => {
     char.id = char.id.replace(/^char_/, '');
     mapHandleKeys.forEach(key => {
       if (!char[key]) {
@@ -33,21 +31,8 @@ const handleCharactersCultivateData = list => {
       }
       char[key] = _.fromPairs(char[key].map(({ id, level }) => [idStandardization(id), level]));
     });
-    if (char.id === '002_amiya') amiya = char;
-    else if (/_amiya\d+$/.test(char.id)) {
-      otherAmiya.push(char);
-      return false;
-    }
-    return true;
   });
-  if (amiya && otherAmiya.length) {
-    otherAmiya.forEach(char => {
-      mapHandleKeys.forEach(key => {
-        Object.assign(amiya[key], char[key]);
-      });
-    });
-  }
-  return _.keyBy(newList, 'id');
+  return _.keyBy(list, 'id');
 };
 
 export const useSklandStore = defineStore('skland', () => {
